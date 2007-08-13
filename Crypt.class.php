@@ -46,7 +46,7 @@ define('CRYPT_HASH_SHA1', 'sha1');
  * @name        Crypt
  * @author      Arthur Furlan <arthur.furlan@gmail.com>
  * @copyright   2006 (c) - Arthur Furlan <arthur.furlan@gmail.com>
- * @license     GPL v2.0 {@link http://gnu.org/licenses/gpl.txt}
+ * @license     GPL v3.0 {@link http://gnu.org/licenses/gpl.txt}
  * @version     2.2
  *
  * @todo        Improve class documentation
