@@ -34,10 +34,12 @@ define('CRYPT_HASH_SHA1', 'sha1');
 /**
  * Crypt class
  *
- * The Crypt class provides an easy way to encrypt and decrypt data. It
- * implements a cryptography method based on private keys that are used
- * in the creation process of the encrypted strings, so you'll need the
- * same key to recover your original data.
+ * The Crypt class provides an easy and secure way to encrypt, decrypt
+ * and hash data. It implements a cryptography method based on private
+ * keys. It traverses the data to be encrypted and applies the XOR
+ * operation against the values of the characters of the encryption key.
+ * The decryption employs the same operation, so you'll need the key
+ * used on encryptation process to recover your original data.
  *
  * NOTE: All documentation available for this package is written below.
  * If you have any doubts or sugestions, feel free to contact me! :)
@@ -47,7 +49,7 @@ define('CRYPT_HASH_SHA1', 'sha1');
  * @author      Arthur Furlan <arthur.furlan@gmail.com>
  * @copyright   2006 (c) - Arthur Furlan <arthur.furlan@gmail.com>
  * @license     GPL v3.0 {@link http://gnu.org/licenses/gpl.txt}
- * @version     2.2
+ * @version     2.1
  *
  * @todo        Improve class documentation
  */
