@@ -1,116 +1,78 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
-/**
- * PHP Version 5
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
- *
- * {@link http://gnu.org/licenses/gpl.txt}
- */
-
-// {{{ Constants
-
-/* Mode constants */
-define('CRYPT_MODE_BINARY'     , 0);
-define('CRYPT_MODE_BASE64'     , 1);
-define('CRYPT_MODE_HEXADECIMAL', 2);
-
-/* Hash algorithms constants */
-define('CRYPT_HASH_MD5' , 'md5');
-define('CRYPT_HASH_SHA1', 'sha1');
-
-// }}}
-// {{{ Crypt
+// {{{ Crypt class
 
 /**
- * Crypt class
- *
- * The Crypt class provides an easy and secure way to encrypt, decrypt
- * and hash data. It implements a cryptography method based on private
- * keys. It traverses the data to be encrypted and applies the XOR
- * operation against the values of the characters of the encryption key.
- * The decryption employs the same operation, so you'll need the key
- * used on encryptation process to recover your original data.
- *
- * NOTE: All documentation available for this package is written below.
- * If you have any doubts or sugestions, feel free to contact me! :)
+ * The Crypt class provides an easy and secure way to encrypt and
+ * decrypt data using the Symmetric Cryptography method, that is a
+ * low cost algorithm that encrypt data based on the shared keys
+ * conecpt.
  *
  * @package     Crypt Class
- * @name        Crypt
+ * @category    Cryptography
  * @author      Arthur Furlan <arthur.furlan@gmail.com>
- * @copyright   2006 (c) - Arthur Furlan <arthur.furlan@gmail.com>
+ * @copyright   2006 (c) - Arthur Furlan
  * @license     GPL v3.0 {@link http://gnu.org/licenses/gpl.txt}
- * @version     2.1
+ * @link        http://code.google.com/p/cryptclass
+ * @version     2.2
  *
  * @todo        Improve class documentation
  */
 class Crypt {
 
+    // {{{ Constants
+    
+    /* Returning modes */
+    const MODE_BIN = 0;     // same length of the original data
+    const MODE_B64 = 1;     // about 66% bigger
+    const MODE_HEX = 2;     // exactly 100% bigger
+
+    // }}}
     // {{{ Attributes
 
     /**
-     * Private key used in the creation process of the encrypted strings.
-     * NOTE: This value should be as strange as possible :)
+     * The private key used in the cryptography method.
+     * NOTE: This value should be as strange as possible.
      *
-     * @name        $key
-     * @property    $Key
+     * @name        $_key
      * @access      private
      * @var         string
      */
-    private $key  = __CLASS__;
+    private $_key  = __CLASS__;
 
     /**
-     * Set the returning mode for the encrypted strings.
+     * The returning mode of the cryptography method.
      *
-     * @name        $mode
-     * @property    $Mode
+     * @name        $_mode
      * @access      private
      * @var         integer
+     * @see         Crypt::{MODE_BIN, MODE_B64, MODE_HEX}
      */
-    private $mode = CRYPT_MODE_BASE64;
-
-    /**
-     * Set the hash algorithm for hash strings.
-     *
-     * @name        $hash
-     * @property    $Hash
-     * @access      private
-     * @var         integer
-     */
-    private $hash = CRYPT_HASH_MD5;
+    private $_mode = Crypt::MODE_HEX;
 
     // }}}
-    // {{{ __construct()
+    // {{{ function __construct()
 
     /**
-     * Constructor method.
-     * Set the mode to be used in the new object.
+     * Configure the new object, setting the mode and key.
      *
      * @name        __construct()
      * @access      public
      * @param       [$mode]     integer
-     * @param       [$hash]     integer
+     * @param       [$key]      integer
      * @return      void
      */
-    function __construct($mode = null, $hash = null) {
-        $this->SetMode($mode);
-        $this->SetHash($hash);
+    function __construct($mode = null, $key = null) {
+        is_null($mode) || ($this->Mode = $mode);
+        is_null($key)  || ($this->Key  = $key);
     }
 
     // }}}
-    // {{{ __toString()
+    // {{{ function __toString()
 
     /**
-     * Overload to the object conversion to string.
+     * Overload of the object conversion to string.
      *
      * @name        __toString()
      * @access      public
@@ -119,259 +81,188 @@ class Crypt {
      */
     function __toString() {
         return __CLASS__ . " object\n"
-             . "(\n"
-             . "    [Key]  => {$this->key}\n"
-             . "    [Mode] => {$this->mode}\n"
-             . "    [Hash] => {$this->hash}\n"
-             . ")\n";
+            . "(\n"
+            . "    [Key]  => {$this->_key}\n"
+            . "    [Mode] => {$this->_mode}\n"
+            . ")\n";
     }
 
     // }}}
-    // {{{ __set()
+    // {{{ function __set()
 
     /**
-     * Write methods for the class properties.
+     * Properties write methods.
      *
      * @name        __set()
-     * @access      public
      * @param       $property   string
      * @param       $value      mixed
      * @return      void
      */
     function __set($property, $value) {
         switch ($property) {
-		    case 'Key' : return $this->SetKey($value);
-            case 'Mode': return $this->SetMode($value);
-            case 'Hash': return $this->SetHash($value);
+		    case 'Key' : return $this->_setKey($value);
+            case 'Mode': return $this->_setMode($value);
         }
     }
 
     // }}}
-    // {{{ __get()
+    // {{{ function __get()
 
     /**
-     * Read methods for the class properties.
+     * Properties read methods.
      *
      * @name        __get()
-     * @access      public
-     * @param       $property   string
-     * @return      mixed
-     */
-    function __get($property) {
-        switch ($property) {
-            case 'Key' : return $this->key;
-            case 'Mode': return $this->mode;
-            case 'Hash': return $this->hash;
-        }
-    }
-
-    // }}}
-    // {{{ SetKey()
-
-    /**
-     * Set the private key used in the creation process of the
-     * encrypted strings.
-     *
-     * @name        SetMode()
-     * @access      protected
      * @param       $key        string
      * @return      void
      */
-    protected function SetKey($key) {
-        $this->key = (string) $key;
+    function __get($property) {
+        switch ($property) {
+            case 'Key' : return $this->_key;
+            case 'Mode': return $this->_mode;
+        }
     }
 
     // }}}
-    // {{{ SetMode()
+    // {{{ public function encrypt()
 
-    /**
-     * Set the current returning mode of the class.
-     *
-     * @name        SetMode()
-     * @access      protected
-     * @param       $mode       integer
-     * @return      void
-     */
-    protected function SetMode($mode) {
-        Crypt::IsSupportedMode($mode) && $this->mode = (int)$mode;
-    }
-
-    // }}}
-    // {{{ SetHash()
-
-    /**
-     * Set the current hash algorithm of the class.
-     *
-     * @name        SetHash()
-     * @access      protected
-     * @param       $hash       integer
-     * @return      void
-     */
-    protected function SetHash($hash) {
-        Crypt::IsSupportedHash($hash) && $this->hash = (int)$hash;
-    }
-
-    // }}}
-    // {{{ SupportedModes()
-
-    /**
-     * Return the list of supported modes.
-     *
-     * @name        SupportedModes()
-     * @access      public
-     * @static
-     * @param       void
-     * @return      void
-     */
-    public static function SupportedModes() {
-        return array(CRYPT_MODE_BINARY,
-                     CRYPT_MODE_BASE64,
-                     CRYPT_MODE_HEXADECIMAL);
-    }
-
-    // }}}
-    // {{{ SupportedHashes()
-
-    /**
-     * Return the list of supported hashes.
-     *
-     * @name        SupportedHashes()
-     * @access      public
-     * @static
-     * @param       void
-     * @return      void
-     */
-    public static function SupportedHashes() {
-        return array(CRYPT_HASH_MD5,
-                     CRYPT_HASH_SHA1);
-    }
-
-    // }}}
-    // {{{ IsSupportedMode()
-
-    /**
-     * Checks if $mode is a valid returning mode of the class.
-     *
-     * @name        IsSupportedMode()
-     * @access      public
-     * @static
-     * @param       $mode       integer
-     * @return      void
-     */
-    public static function IsSupportedMode($mode) { 
-        return in_array($mode, Crypt::SupportedModes());
-    }
-
-    // }}}
-    // {{{ IsSupportedHash()
-
-    /**
-     * Checks if $hash is a valid hash algorithm of the class.
-     *
-     * @name        IsSupportedHash()
-     * @access      public
-     * @static
-     * @param       $mode       integer
-     * @return      void
-     */
-    public static function IsSupportedHash($hash) { 
-        return in_array($hash, Crypt::SupportedHashes());
-    }
-
-    // }}}
-    // {{{ Encrypt()
-
-    /**
+   /**
      * Encrypt the data using the current returning mode.
      *
-     * @name        Encrypt()
+     * @name        encrypt()
      * @access      public
      * @param       $data       mixed
      * @return      string
      */
-   public function Encrypt($data) {
+    public function encrypt($data) {
         $data = (string) $data;
         for ($i=0;$i<strlen($data);$i++)
-            @$encrypt .= $data[$i] ^ $this->key[$i % strlen($this->key)];
-        if ($this->mode == CRYPT_MODE_BINARY)
-            return @$encrypt;
-        @$encrypt = base64_encode(@$encrypt);
-        if ($this->mode == CRYPT_MODE_BASE64)
-            return @$encrypt;
-        if ($this->mode == CRYPT_MODE_HEXADECIMAL)
-            return $this->EncodeHexadecimal(@$encrypt);
+            @$encrypt .= $data[$i] ^
+                $this->_key[$i % strlen($this->_key)];
+        if ($this->_mode === Crypt::MODE_B64)
+            return base64_encode(@$encrypt);
+        if ($this->_mode === Crypt::MODE_HEX)
+            return $this->_encodeHexadecimal(@$encrypt);
+        return @$encrypt;
     }
 
     // }}}
-    // {{{ Decrypt()
+    // {{{ public function decrypt()
 
     /**
      * Decrypt the data using the current returning mode.
-     * NOTE: You must use the same mode of the creation process.
+     * NOTE: You must use the same $_mode of the creation process.
      *
-     * @name        Decrypt()
+     * @name        decrypt()
      * @access      public
      * @param       $crypt      string
      * @return      string
      */
-   public function Decrypt($crypt) {
-        if ($this->mode == CRYPT_MODE_HEXADECIMAL)
-            $crypt = $this->DecodeHexadecimal($crypt);
-        if ($this->mode != CRYPT_MODE_BINARY)
+    public function decrypt($crypt) {
+        if ($this->_mode === Crypt::MODE_HEX)
+            $crypt = $this->_decodeHexadecimal($crypt);
+        if ($this->_mode === Crypt::MODE_B64)
             $crypt = (string)base64_decode($crypt);
         for ($i=0;$i<strlen($crypt);$i++)
-            @$data .= $crypt[$i] ^ $this->key[$i % strlen($this->key)];
+            @$data .= $crypt[$i] ^ $this->_key[$i % strlen($this->_key)];
         return @$data;
     }
 
     // }}}
-    // {{{ Hash()
-    
+    // {{{ public static function supportedModes()
+
     /**
-     * Create a hash string using the algorithm defined in $hash.
+     * Return the list containing all supported modes.
      *
-     * @name        Hash()
+     * @name        supportedModes()
      * @access      public
-     * @param       $data       mixed
-     * @param       [$binary]   bool
-     * @return      string
+     * @param       void
+     * @return      void
      */
-    public function Hash($data, $binary = false) {
-        $crypt = new Crypt(CRYPT_MODE_BINARY);
-        $crypt->Key = $this->key;
-        return hash($this->hash, $crypt->Encrypt($data), (bool)$binary);
+    public static function supportedModes() {
+        return array(
+            Crypt::MODE_BIN,
+            Crypt::MODE_B64,
+            Crypt::MODE_HEX
+        );
     }
 
     // }}}
-    // {{{ EncodeHexadecimal()
+    // {{{ protected static function _isSupportedMode()
+
+    /**
+     * Checks if $mode is a valid returning mode of the class.
+     *
+     * @name        _isSupportedMode()
+     * @access      public
+     * @param       $mode       integer
+     * @return      void
+     */
+    public static function _isSupportedMode($mode) { 
+        return in_array($mode, Crypt::supportedModes());
+    }
+
+    // }}}
+    // {{{ protected function _setKey()
+
+    /**
+     * Set the key used in the cryptography method.
+     *
+     * @name        _setMode()
+     * @access      protected
+     * @param       $key        string
+     * @return      void
+     */
+    protected function _setKey($key) {
+        $this->_key = (string) $key;
+    }
+
+    // }}}
+    // {{{ protected function _setMode()
+
+    /**
+     * Set the current returning mode of the class.
+     *
+     * @name        _setMode()
+     * @access      protected
+     * @param       $mode       integer
+     * @return      void
+     */
+    protected function _setMode($mode) {
+        Crypt::_isSupportedMode($mode)
+            && ($this->_mode = (int)$mode);
+    }
+
+    // }}}
+    // {{{ protected function _encodeHexadecimal()
 
     /**
      * Encode the data using hexadecimal chars.
      *
-     * @name        EncodeHexadecimal()
+     * @name        _encodeHexadecimal()
      * @access      protected
      * @param       $data       mixed
      * @return      string
      */
-    protected function EncodeHexadecimal($data) {
+    protected function _encodeHexadecimal($data) {
         $data = (string) $data;
         for ($i=0;$i<strlen($data);$i++)
-            @$hexcrypt .= dechex(ord($data[$i]));
+            @$hexcrypt .= str_pad(dechex(ord(
+                $data[$i])), 2, 0, STR_PAD_LEFT);
         return @$hexcrypt;
     }
 
     // }}}
-    // {{{ DecodeHexadecimal()
+    // {{{ protected function _decodeHexadecimal()
 
     /**
      * Decode hexadecimal strings.
      *
-     * @name        DecodeHexadecimal()
+     * @name        _decodeHexadecimal()
      * @access      protected
      * @param       $data       string
      * @return      string
      */
-    protected function DecodeHexadecimal($hexcrypt) {
+    protected function _decodeHexadecimal($hexcrypt) {
         $hexcrypt = (string) $hexcrypt;
         for ($i=0;$i<strlen($hexcrypt);$i+=2)
             @$data .= chr(hexdec(substr($hexcrypt, $i, 2)));
