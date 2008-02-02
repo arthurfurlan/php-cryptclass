@@ -1,7 +1,7 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
-// {{{ Crypt class
+// {{{ Crypt
 
 /**
  * The Crypt class provides an easy and secure way to encrypt and
@@ -9,7 +9,7 @@
  * low cost algorithm that encrypt data based on the shared keys
  * conecpt.
  *
- * @package     Crypt Class
+ * @package     Crypt class
  * @category    Cryptography
  * @author      Arthur Furlan <arthur.furlan@gmail.com>
  * @copyright   2006 (c) - Arthur Furlan
