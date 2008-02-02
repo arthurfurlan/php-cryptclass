@@ -1,9 +1,2 @@
-v2.2: February, 2008
-    * The mode constants were rewriten as class constants.
-    * The hash support was removed.
-    * The class attributes and methods were renamed based on PEAR Coding Standards.
-    * The Crypt::MODE_HEX was improved and now the resulting string is shorter of the last version.
-    * The class file was renamed to Crypt.php instead of the Crypt.class.php of the last version.
-
-v2.1: August, 2007
+v2.1:   August, 2007
     * Crypt class released on http://code.google.com
