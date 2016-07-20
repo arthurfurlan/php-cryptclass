@@ -1,3 +1,8 @@
+v2.2.1: July, 2016
+    * Initialized variables
+    * Removed error supression
+    * Updated PHPDoc
+
 v2.2: February, 2008
     * The mode constants were rewriten as class constants.
     * The hash support was removed.
