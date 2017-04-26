@@ -15,7 +15,7 @@
  * @copyright   2006 (c) - Arthur Furlan
  * @license     GPL v3.0 {@link http://gnu.org/licenses/gpl.txt}
  * @link        http://code.google.com/p/cryptclass
- * @version     2.2
+ * @version     2.2.1
  *
  * @todo        Improve class documentation
  */
@@ -61,7 +61,7 @@ class Crypt {
      * @access      public
      * @param       [$mode]     integer
      * @param       [$key]      integer
-     * @return      void
+     * @return      Crypt
      */
     function __construct($mode = null, $key = null) {
         is_null($mode) || ($this->Mode = $mode);
@@ -100,8 +100,8 @@ class Crypt {
      */
     function __set($property, $value) {
         switch ($property) {
-		    case 'Key' : return $this->_setKey($value);
-            case 'Mode': return $this->_setMode($value);
+		    case 'Key' : $this->_setKey($value);  break;
+            case 'Mode': $this->_setMode($value); break;
         }
     }
 
@@ -112,14 +112,16 @@ class Crypt {
      * Properties read methods.
      *
      * @name        __get()
-     * @param       $key        string
-     * @return      void
+     * @param       $property   string
+     * @return      mixed
      */
     function __get($property) {
+        $return = NULL;
         switch ($property) {
-            case 'Key' : return $this->_key;
-            case 'Mode': return $this->_mode;
+            case 'Key' : $return = $this->_key;  break;
+            case 'Mode': $return = $this->_mode; break;
         }
+        return $return;
     }
 
     // }}}
@@ -134,15 +136,16 @@ class Crypt {
      * @return      string
      */
     public function encrypt($data) {
+        $encrypt = NULL;
         $data = (string) $data;
         for ($i=0;$i<strlen($data);$i++)
-            @$encrypt .= $data[$i] ^
+            $encrypt .= $data[$i] ^
                 $this->_key[$i % strlen($this->_key)];
         if ($this->_mode === Crypt::MODE_B64)
             return base64_encode(@$encrypt);
         if ($this->_mode === Crypt::MODE_HEX)
             return $this->_encodeHexadecimal(@$encrypt);
-        return @$encrypt;
+        return $encrypt;
     }
 
     // }}}
@@ -158,13 +161,14 @@ class Crypt {
      * @return      string
      */
     public function decrypt($crypt) {
+        $data = NULL;
         if ($this->_mode === Crypt::MODE_HEX)
             $crypt = $this->_decodeHexadecimal($crypt);
         if ($this->_mode === Crypt::MODE_B64)
             $crypt = (string)base64_decode($crypt);
         for ($i=0;$i<strlen($crypt);$i++)
-            @$data .= $crypt[$i] ^ $this->_key[$i % strlen($this->_key)];
-        return @$data;
+            $data .= $crypt[$i] ^ $this->_key[$i % strlen($this->_key)];
+        return $data;
     }
 
     // }}}
@@ -176,7 +180,7 @@ class Crypt {
      * @name        supportedModes()
      * @access      public
      * @param       void
-     * @return      void
+     * @return      array
      */
     public static function supportedModes() {
         return array(
@@ -195,7 +199,7 @@ class Crypt {
      * @name        _isSupportedMode()
      * @access      public
      * @param       $mode       integer
-     * @return      void
+     * @return      boolean
      */
     public static function _isSupportedMode($mode) { 
         return in_array($mode, Crypt::supportedModes());
@@ -244,11 +248,12 @@ class Crypt {
      * @return      string
      */
     protected function _encodeHexadecimal($data) {
+        $hexcrypt = NULL;
         $data = (string) $data;
         for ($i=0;$i<strlen($data);$i++)
-            @$hexcrypt .= str_pad(dechex(ord(
+            $hexcrypt .= str_pad(dechex(ord(
                 $data[$i])), 2, 0, STR_PAD_LEFT);
-        return @$hexcrypt;
+        return $hexcrypt;
     }
 
     // }}}
@@ -259,14 +264,15 @@ class Crypt {
      *
      * @name        _decodeHexadecimal()
      * @access      protected
-     * @param       $data       string
+     * @param       $hexcrypt      string
      * @return      string
      */
     protected function _decodeHexadecimal($hexcrypt) {
+        $data = NULL;
         $hexcrypt = (string) $hexcrypt;
         for ($i=0;$i<strlen($hexcrypt);$i+=2)
-            @$data .= chr(hexdec(substr($hexcrypt, $i, 2)));
-        return @$data;
+            $data .= chr(hexdec(substr($hexcrypt, $i, 2)));
+        return $data;
     }
 
     // }}}
@@ -274,4 +280,3 @@ class Crypt {
 }
 
 // }}}
-?>
